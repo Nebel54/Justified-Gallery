@@ -81,8 +81,8 @@
 
                     }
                 } else if (longestSide > steps[steps.length - 1]){
-                    if (typeof(context.settings.imagesMapping[src]['lt' + steps[i]]) !== 'undefined'){
-                        return context.settings.imagesMapping[src]['lt' + steps[i]];
+                    if (typeof(context.settings.imagesMapping[src]['lt' + steps[steps.length - 1]]) !== 'undefined'){
+                        return context.settings.imagesMapping[src]['lt' + steps[steps.length - 1]];
                     }
                 }
             }
