@@ -23,6 +23,9 @@
 				'lt640': '_z', 
 				'lt1024': '_b'
 			},
+            imagesMapping : {
+
+            },
 			rowHeight : 120,
 			maxRowHeight : 0, //negative value = no limits, 0 = 1.5 * rowHeight
 			margins : 1,
@@ -60,6 +63,35 @@
 			}
 		}
 
+        function getMappedImage(src, width, height, context) {
+            var longestSide;
+            longestSide = (width > height) ? width : height;
+            var steps = [100, 240, 320, 500, 640, 1024];
+
+            if (typeof(context.settings.imagesMapping[src]) === 'undefined'){
+                return false;
+            }
+
+            for ( var i=0; i<steps.length; i++ ){
+
+                if (longestSide <= steps[i]){
+                    if (typeof(context.settings.imagesMapping[src]['lt' + steps[i]]) !== 'undefined'){
+                        console.log('lt' + steps[i] + ' exists');
+                        return context.settings.imagesMapping[src]['lt' + steps[i]];
+
+                    }
+                    else{
+                        console.log('lt' + steps[i] + ' does not exists');
+                    }
+                } else if (longestSide > steps[steps.length - 1]){
+                    if (typeof(context.settings.imagesMapping[src]['lt' + steps[i]]) !== 'undefined'){
+                        return context.settings.imagesMapping[src]['lt' + steps[i]];
+                    }
+                }
+            }
+            return false;
+        }
+
 		function onEntryMouseEnterForCaption (ev) {
 			var $caption = $(ev.currentTarget).find('.caption');
 			if (ev.data.settings.cssAnimation) {
@@ -91,11 +123,20 @@
 
 			//DEBUG// console.log('displayEntry: $image.width() = ' + $image.width() + ' $image.height() = ' + $image.height());
 
-			// Image reloading for an high quality of thumbnails
-			var imageSrc = $image.attr('src');
-			var newImageSrc = imageSrc.replace(context.settings.extension, '').replace(context.usedSizeRangeRegExp, '') + 
-								getSuffix(imgWidth, imgHeight, context) + 
-								imageSrc.match(context.settings.extension)[0];
+            // Image reloading for an high quality of thumbnails
+            var imageSrc = $image.attr('src');
+
+            var newImageSrc = getMappedImage($image.data('jg.originalSrc'), imgWidth, imgHeight, context);
+
+            if (!newImageSrc){
+                newImageSrc = imageSrc.replace(context.settings.extension, '').replace(context.usedSizeRangeRegExp, '') +
+                    getSuffix(imgWidth, imgHeight, context) +
+                    imageSrc.match(context.settings.extension)[0];
+            }
+            else{
+                console.log('mapped an image' + newImageSrc);
+            }
+
 
 			$image.one('error', function () {
 				//DEBUG// console.log('revert the original image');
